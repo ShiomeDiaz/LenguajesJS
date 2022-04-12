@@ -1,0 +1,19 @@
+{
+  "name": "lenguajes",
+  "version": "1.0.0",
+  "description": "Proyecto estructura de lenguajes con cristian",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShiomeDiaz/LenguajesJS.git"
+  },
+  "author": "Jeffrey Loaiza, Felipe Cortez, Felipe Giraldo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShiomeDiaz/LenguajesJS/issues"
+  },
+  "homepage": "https://github.com/ShiomeDiaz/LenguajesJS#readme"
+}
