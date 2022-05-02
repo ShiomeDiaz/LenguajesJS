@@ -2,7 +2,7 @@
 /*
     La alimentacion parte de un arreglo de Strings
 */
-let gramatica = ["S->S ps|T|if", "T->T as|ef|λ"];
+let gramatica = ["S->S ps|T|if", "T->as|ef|λ"];
 let produce = "->";
 /*
     Se puede decir que es la gramatica final
@@ -84,7 +84,7 @@ function recurcionIzquierda(line) {
 */
 function eliminarRecurcionIzq(line) {
   let [productor, producido] = line.split("->");
-  let newProductor = productor + "'";
+  let newProductor = productor + "$";
   let produccion = producido.split("|");
   let noEspacios = [];
   console.log(newProductor);
@@ -97,14 +97,15 @@ function eliminarRecurcionIzq(line) {
         gramaticaLL1.push(
           productor + produce + noEspacios[i][j] + " " + newProductor
         );
-      }//Probablemente no funciona correctamente.
+      }//Probablemente no funciona correctamente. noEspacios[i][j + 1] === productor
       if (noEspacios[i][j + 1] === productor) {
         gramaticaLL1.push(
           `${newProductor}${produce}${noEspacios} ${newProductor}|λ`
         );
-        if(VN.includes(newProductor)== false){
-          VN.push(newProductor);
-      }
+        console.log("si sirvo") 
+      //   if(VN.includes(newProductor)== false){
+      //     VN.push(newProductor);
+      // }
         break;
       }
     }
