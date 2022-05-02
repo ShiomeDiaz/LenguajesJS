@@ -2,7 +2,7 @@
 /*
     La alimentacion parte de un arreglo de Strings
 */
-let gramatica = ["S->S ps|T|if", "T->as|if|λ"];
+let gramatica = ["S->S ps|T|if", "T->T as|ef|λ"];
 let produce = "->";
 /*
     Se puede decir que es la gramatica final
@@ -97,11 +97,14 @@ function eliminarRecurcionIzq(line) {
         gramaticaLL1.push(
           productor + produce + noEspacios[i][j] + " " + newProductor
         );
-      }
+      }//Probablemente no funciona correctamente.
       if (noEspacios[i][j + 1] === productor) {
         gramaticaLL1.push(
           `${newProductor}${produce}${noEspacios} ${newProductor}|λ`
         );
+        if(VN.includes(newProductor)== false){
+          VN.push(newProductor);
+      }
         break;
       }
     }
@@ -145,6 +148,27 @@ function conjuntoTN(line) {
         si y1 es A, entonces agregar prim(y2) a prim(x)
         si y1 hasta yk tiene A, entonces agregar A a prim(x)
  */
+        function Primeros(line) {
+            let [productor, producido] = line.split("->");
+            let produccion = producido.split("|");
+            let noEspacios = [];
+            let mapPrimeros = new Map();
+            for (i in produccion) {
+              noEspacios.push(produccion[i].split(" "))
+            }
+            noEspacios = noEspacios.flat()
+            //console.log(noEspacios[0])
+            let primX = [];
+            let primerosx = [];
+            console.log(productor)
+            if (VT.includes(noEspacios[0])){
+            //console.log(productor,"Si tengo a ",noEspacios[0])
+              mapPrimeros.set(productor, noEspacios[0]);
+            }
+              mapPrimeros.forEach((valor,clave)=> {
+                console.log(`Prim(${clave}) = ${valor}`);
+            })
+      }
 /*
 Metodo main para leer la gramatica y ejecutar los respectivos 
 paso para poder comprobar si es una gramatica ll1
@@ -162,6 +186,9 @@ function leerGramatica(gramm) {
 function vtvn(gramm){
     for (line in gramm) {conjuntoTN(gramm[line]);}
 }
+function prim(gramm){
+  for (line in gramm) {Primeros(gramm[line]);}
+}
 
 leerGramatica(gramatica);
 vtvn(gramatica);
@@ -170,4 +197,5 @@ console.log("Conjunto VT:", VT)
 vtvn(gramaticaLL1);
 console.log("Conjunto VN posLL1:", VN)
 console.log("Conjunto VT posLL1:", VT)
+prim(gramaticaLL1);
 console.log(gramaticaLL1);
