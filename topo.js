@@ -1,4 +1,5 @@
-let gramm = ["S->A sp t s s|A sp t t|A sp t", "A->λ|c D|if"];
+//let gramm = ["S->A sp s|A sp t|A sp", "A->λ|c D|if"];
+let gramm = ["S->S ps|T|if", "T->as|if|λ"];
 /*
 let gramm = [
   "I->if ( comp ) { instr }|if ( comp ) { instr } else { instr }",
@@ -79,7 +80,8 @@ function extractProduccionesNoOr(line) {
  *
  */
 function tieneFactorizacionIzq(line) {
-  let copyGram = extractProduccionesNoOr(line.split("|"));
+  let [productor, produccion] = line.split("->");
+  let copyGram = extractProduccionesNoOr(produccion.split("|"));
   let allCaracters = noTerminales.concat(terminales);
   let flag = 0;
   for (let i = 0; i < allCaracters.length; i++) {
@@ -156,8 +158,6 @@ function factorizacionIzq(line) {
       }
       flag = 0;
     } else {
-      //Aca falta hacer para el new produccion first
-      //Re factorizar en metodos para que se mas facil de entender
       for (let j = 0; j < copyGram.length; j++) {
         for (let k = 0; k < copyGram[j].length; k++) {
           if (
@@ -175,21 +175,94 @@ function factorizacionIzq(line) {
           ) {
             newProduccionFirst =
               newProduccionFirst + "|" + productor + "' " + copyGram[j][k];
-          }
+          } else if (
+            newProduccionFollow.includes(copyGram[j][k]) &&
+            newProduccionFollow.includes(copyGram[j][k - 1]) &&
+            copyGram[j][k + 1] === undefined &&
+            !newProduccionFirst.includes(`|${productor}'`)
+          ) {
+            newProduccionFirst = newProduccionFirst + "|" + productor + "'";
+          } //Creo que hace falta if para cuando este S sp t t y para cuando sea S sp s t
         }
       }
       flag = 0;
     }
   }
+  grammLL1.push(newProduccionFirst, newProduccionFollow);
   console.log("Firs producction: " + newProduccionFirst);
   console.log("Follow produccion: " + newProduccionFollow);
 }
-console.log("Intento de resolver factorizacion izq");
-console.log("Esto muestra si hay que factorizar por izquierda");
+console.log(
+  "Esto muestra si hay que factorizar por izquierda y tambien muestra como queda despues de la facto izq"
+);
 for (let i = 0; i < gramm.length; i++) {
-  let [Pgram, pgram] = gramm[i].split("->");
-  console.log("tiene facto izq: " + tieneFactorizacionIzq(pgram));
-  if (tieneFactorizacionIzq(pgram)) {
+  console.log("tiene facto izq: " + tieneFactorizacionIzq(gramm[i]));
+  if (tieneFactorizacionIzq(gramm[i])) {
     factorizacionIzq(gramm[i]);
+  } else {
+    grammLL1.push(gramm[i]);
+  }
+}
+console.log("Antes de factorizacion");
+console.log(gramm);
+console.log("Despues de la factorizacion queda asi: ");
+console.log(grammLL1);
+console.log("------------------Recursion izq-----------------");
+/*
+ * Metodo para recursion izq
+ *
+ */
+function tieneRecursionIzquierda(line) {
+  let [productor, produccion] = line.split("->");
+  let copyGram = extractProduccionesNoOr(produccion.split("|"));
+  let flag = 0;
+
+  for (let i = 0; i < copyGram.length; i++) {
+    if (copyGram[i][0] === productor) {
+      flag++;
+    }
+  }
+  if (flag >= 1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function eliminarRecursionIzq(line) {
+  let [productor, produccion] = line.split("->");
+  let copyGram = extractProduccionesNoOr(produccion.split("|"));
+  let newFirst = "";
+  let newFollow = "";
+  for (let i = 0; i < copyGram.length; i++) {
+    if (copyGram[i].includes(productor)) {
+      for (let j = 0; j < copyGram[i].length; j++) {
+        if (copyGram[i][j] != productor) {
+          if (newFollow === "") {
+            newFollow = `${productor}'->${copyGram[i][j]} ${productor}'`;
+          } else {
+            newFollow = newFollow + `|${copyGram[i][j]} ${productor}'`;
+          }
+        }
+      }
+    } else {
+      for (let j = 0; j < copyGram[i].length; j++) {
+        if (copyGram[i][j] != productor) {
+          if (newFirst === "") {
+            newFirst = `${productor}->${copyGram[i][j]} ${productor}'`;
+          } else {
+            newFirst = newFirst + `|${copyGram[i][j]} ${productor}'`;
+          }
+        }
+      }
+    }
+  }
+  console.log("new first: " + newFirst);
+  console.log("new follow: " + newFollow);
+}
+for (let i = 0; i < gramm.length; i++) {
+  console.log(gramm[i]);
+  if (tieneRecursionIzquierda(gramm[i])) {
+    eliminarRecursionIzq(gramm[i]);
   }
 }
