@@ -173,6 +173,8 @@ function buscarPrimeros(line) {
               for(k in gramaticaLL1){
                 if(noEspacios[p][0] == gramaticaLL1[k][0]){
                   buscarPrimeros(gramaticaLL1[k]);
+                  prodPrimeros.pop()
+                  return
                 }
               }  
               
@@ -185,6 +187,8 @@ function buscarPrimeros(line) {
       for(k in gramaticaLL1){
         if(noEspacios[p][0] == gramaticaLL1[k][0]){
           buscarPrimeros(gramaticaLL1[k]);
+          prodPrimeros.pop()
+          return
         }
       }  
     }
