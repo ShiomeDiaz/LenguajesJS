@@ -2,7 +2,7 @@
 /*
     La alimentacion parte de un arreglo de Strings
 */
-let gramatica = ["S->T S'|if S'","S'->ps S'", "T->as|if|λ"];
+let gramatica = ["S->T S'|if S'", "S'->ps S'", "T->as|if|λ"];
 let produce = "->";
 /*
     Se puede decir que es la gramatica final
@@ -10,9 +10,9 @@ let produce = "->";
 let gramaticaLL1 = [];
 let VT = [];
 let VN = [];
-let primeros=[];
-let prodPrimeros=[];
-let siguientes=[];
+let primeros = [];
+let prodPrimeros = [];
+let siguientes = [];
 /*
     La recurcion izquierda se ve cuando la porduccion de una gramatica
     se produce a si misma como en el ejemplo de la gramatica anterior 
@@ -119,25 +119,25 @@ function eliminarRecurcionIzq(line) {
     para evitar repetir información. para VN hace falta el productor que es el inicial y se lo agregamos en el segundo if().
  */
 function conjuntoTN(line) {
-    let [productor, producido] = line.split("->");
-    let produccion = producido.split("|");
-    let noEspacios = [];
-    for (i in produccion) {
-      noEspacios.push(produccion[i].split(" "))
-    }
-    for (i in noEspacios) {
-        for( j in noEspacios[i]){
-            if (noEspacios[i][j] == noEspacios[i][j].toUpperCase()&& VN.includes(noEspacios[i][j])== false){
-              VN.push(noEspacios[i][j]);
-             }
-            if(VN.includes(productor)== false){
-                VN.push(productor);
-            }
-            if ( noEspacios[i][j] == noEspacios[i][j].toLowerCase()&& VT.includes(noEspacios[i][j])== false) { 
-              VT.push(noEspacios[i][j]);
-             } 
-          }
+  let [productor, producido] = line.split("->");
+  let produccion = producido.split("|");
+  let noEspacios = [];
+  for (i in produccion) {
+    noEspacios.push(produccion[i].split(" "))
+  }
+  for (i in noEspacios) {
+    for (j in noEspacios[i]) {
+      if (noEspacios[i][j] == noEspacios[i][j].toUpperCase() && VN.includes(noEspacios[i][j]) == false) {
+        VN.push(noEspacios[i][j]);
       }
+      if (VN.includes(productor) == false) {
+        VN.push(productor);
+      }
+      if (noEspacios[i][j] == noEspacios[i][j].toLowerCase() && VT.includes(noEspacios[i][j]) == false) {
+        VT.push(noEspacios[i][j]);
+      }
+    }
+  }
 }
 /** 
  *X → y1,y2,y3.yk ---- y1..k → VT o VN
@@ -148,68 +148,67 @@ function conjuntoTN(line) {
         si y1 es A, entonces agregar prim(y2) a prim(x)
         si y1 hasta yk tiene A, entonces agregar A a prim(x)
  */
-function buscarPrimeros(line) { 
-  //console.log(line)
+function buscarPrimeros(line) {
   let [productor, producido] = line.split("->");
   let produccion = producido.split("|");
   let noEspacios = [];
-  let prim= [];
+  let prim = [];
   let ultimo = []
   prodPrimeros.push(productor);
 
   for (i in produccion) {
     noEspacios.push(produccion[i].split(" "));
   }
-  for(p in noEspacios){
-    for(j in VT){
-      if (noEspacios[p][0] == VT[j] && prim.includes(noEspacios[p][0]) == false){
-          if(noEspacios[p][0] != "λ" && noEspacios[p][0].toLowerCase() != "lambda"|| noEspacios[p].length == 1){
-            prim.push(noEspacios[p][0]);
-          } else{
-            if (VT.includes(noEspacios[p][1]) == true && prim.includes(noEspacios[p][1]) == false){
-              prim.push(noEspacios[p][1]);
-            }
-            if(VN.includes(noEspacios[p][1])){
-              for(k in gramaticaLL1){
-                if(noEspacios[p][1] == gramaticaLL1[k][0]){
-                  buscarPrimeros(gramaticaLL1[k]);
-                  prodPrimeros.pop()
-                  return
-                }
-              }  
-              
-            }
+  for (p in noEspacios) {
+    for (j in VT) {
+      if (noEspacios[p][0] == VT[j] && prim.includes(noEspacios[p][0]) == false) {
+        if (noEspacios[p][0] != "λ" && noEspacios[p][0].toLowerCase() != "lambda" || noEspacios[p].length == 1) {
+          prim.push(noEspacios[p][0]);
+        } else {
+          if (VT.includes(noEspacios[p][1]) == true && prim.includes(noEspacios[p][1]) == false) {
+            prim.push(noEspacios[p][1]);
           }
+          if (VN.includes(noEspacios[p][1])) {
+            for (k in gramaticaLL1) {
+              if (noEspacios[p][1] == gramaticaLL1[k][0]) {
+                buscarPrimeros(gramaticaLL1[k]);
+                prodPrimeros.pop()
+                return
+              }
+            }
+
+          }
+        }
       }
-      
+
     }
-    if(VN.includes(noEspacios[p][0]) == true){
-      for(k in gramaticaLL1){
-        if(noEspacios[p][0] == gramaticaLL1[k][0]){
+    if (VN.includes(noEspacios[p][0]) == true) {
+      for (k in gramaticaLL1) {
+        if (noEspacios[p][0] == gramaticaLL1[k][0]) {
           buscarPrimeros(gramaticaLL1[k]);
           prodPrimeros.pop()
-          ultimo= primeros[primeros.length-1]
-          
+          ultimo = primeros[primeros.length - 1]
+
         }
-      }  
+      }
     }
   }
-  if(ultimo[0] != null){
-  for(i in prim){
-    if(prim[0] != null && ultimo.includes(prim[i]) == false){
-      primeros[primeros.length-1].push(prim)
-      return
+  if (ultimo[0] != null) {
+    for (i in prim) {
+      if (prim[0] != null && ultimo.includes(prim[i]) == false) {
+        primeros[primeros.length - 1].push(prim)
+        return
+      }
     }
-  } 
-  return
+    return
   }
 
-  if (prim[0] != null){
+  if (prim[0] != null) {
     primeros.push(prim);
-  }else{
+  } else {
     prodPrimeros.pop()
   }
-  
+
 }
 /** 
  *A → aXB
@@ -220,82 +219,75 @@ function buscarPrimeros(line) {
         si ß es λ, entonces agregar a Sig(x) los sig(A)
 
  */
- function buscarSiguientes(line, productorB){
-   let sig= [];
-   let [productor, producido] = line.split("->");
-   let produccion = producido.split("|");
-   let noEspacios = [];
-   let posProductor =0;
-   let contador=0;
-   for (i in prodPrimeros){
-     if(productor == prodPrimeros[i]){
-       posProductor=i
-     }
-   }
-
-   for (i in produccion) {
-     noEspacios.push(produccion[i].split(" "));
+function buscarSiguientes(line, productorB) {
+  let sig = [];
+  let [productor, producido] = line.split("->");
+  let produccion = producido.split("|");
+  let noEspacios = [];
+  let posProductor = 0;
+  let contador = 0;
+  let prims = [];
+  for (i in prodPrimeros) {
+    if (productor == prodPrimeros[i]) {
+      posProductor = i
     }
-    for(i in noEspacios){
-      if(noEspacios[i].includes(productorB) == true){
-            console.log("prueba 240 ")
-            console.log(posProductor)
-            console.log(productorB)
-            console.log(noEspacios[i])
-            for(j in noEspacios[i]){
-              contador++
-              if(noEspacios[i][j] == productorB){
-                for (k in siguientes){
-                  if(j == noEspacios.length-1 && sig.includes(siguientes[posProductor][k]) == false){
-                    sig.push(siguientes[posProductor])
-                    sig= sig.flat()
-                  }if(j == noEspacios[i].length-2){
-                      console.log("prueba 243 ")
-                      console.log(contador)
-                      console.log(noEspacios[i][contador-1])
-                      console.log(noEspacios[i])
-                    if(noEspacios[i][contador-1] == "λ" && sig.includes(siguientes[posProductor][k]) == false){
-                      sig.push(siguientes[posProductor])
-                      sig= sig.flat()
-                      console.log("prueba 244 ")
-                      console.log(productorB)
-                      console.log(noEspacios[i])
+  }
+
+  for (i in produccion) {
+    noEspacios.push(produccion[i].split(" "));
+  }
+  for (i in noEspacios) {
+    if (noEspacios[i].includes(productorB) == true) {
+      for (j in noEspacios[i]) {
+        contador++
+        if (noEspacios[i][j] == productorB) {
+          for (k in siguientes) {
+            if (j == noEspacios.length - 1 && sig.includes(siguientes[posProductor][k]) == false) {
+              sig.push(siguientes[posProductor])
+              sig = sig.flat()
+            } if (j <= noEspacios[i].length - 2) {
+              if (noEspacios[i][contador] == "λ" && sig.includes(siguientes[posProductor][k]) == false) {
+                sig.push(siguientes[posProductor])
+                sig = sig.flat()
+              }
+              if (VT.includes(noEspacios[i][contador]) && sig.includes(noEspacios[i][contador]) == false) {
+                sig.push(noEspacios[i][contador])
+                sig = sig.flat()
+              }
+              if (VN.includes(noEspacios[i][contador])) {
+                for (l in prodPrimeros) {
+                  for (m in primeros[l]) {
+                    if (prodPrimeros[l] == noEspacios[i][contador] && prims.includes(primeros[l][m]) == false) {
+                      prims.push(primeros[l][m])
+                      prims = prims.flat()
+                      if (prims.includes("λ") && prims.includes(siguientes[l][m]) == false) {
+                        prims.push(siguientes[l])
+                      }
+                      else {
+                        sig.push(prims)
+                        sig = sig.flat()
+                      }
+
                     }
                   }
-                } 
-                
-              } 
+                }
+
+
+              }
+            }
+          }
+
         }
       }
     }
-    
-    // console.log("prueba 220 "+produccion)
-   if(siguientes.length==0){
-     sig.push("$")
-    }
-    if (sig[0] != null){
-      siguientes.push(sig)
-    }
-  //  noEspacios = noEspacios.flat();
-  //  console.log("productor",productor,"produccion", noEspacios)
-  //  for (i = 0; i < productor.length; i++) {
-  //   console.log("productor: ", productor[i])
-  //   for (j = 0; j <noEspacios.length; j++) {
-  //       if(noEspacios[j]==noEspacios[0]){
-  //         // siguientes[i][j].push()
-  //         console.log("somos iguales:", noEspacios[j], "y....", productor[i])
-  //       }
-        
-  //   }
-  //  }
-  //  for (i in noEspacios) {
-  //    if(noEspacios[1]==productor) {
-  //      console.log("somos iguales:", noEspacios[1], "y....", productor)
-  //    }
-     //console.log("produccion", noEspacios[1])
-   // console}
-   
   }
+  if (siguientes.length == 0) {
+    sig.push("$")
+  }
+  if (sig[0] != null) {
+    siguientes.push(sig)
+  }
+}
 
 
 /*
@@ -312,20 +304,20 @@ function leerGramatica(gramm) {
 
   }
   vtvn(gramaticaLL1);
-  for (line in gramaticaLL1){
+  for (line in gramaticaLL1) {
     buscarPrimeros(gramaticaLL1[line]);
-    
+
   }
-  for (let i=0; i< prodPrimeros.length;i++){
-    for (let line=0; line< gramaticaLL1.length; line++){
+  for (let i = 0; i < prodPrimeros.length; i++) {
+    for (let line = 0; line < gramaticaLL1.length; line++) {
       buscarSiguientes(gramaticaLL1[line], prodPrimeros[i]);
     }
   }
-  
+
 }
 //Alimenta el conjuntoTN con el Gramatica[line]
-function vtvn(gramm){
-    for (line in gramm) {conjuntoTN(gramm[line]);}
+function vtvn(gramm) {
+  for (line in gramm) { conjuntoTN(gramm[line]); }
 }
 
 leerGramatica(gramatica);
@@ -339,8 +331,8 @@ console.log(gramaticaLL1)
 // console.log("Conjunto VT posLL1:", VT)
 // console.log(gramaticaLL1);
 console.log("-----------------Primeros--------------------")
-for (var i = 0; i <prodPrimeros.length; i++) {
-  console.log("Prim("+prodPrimeros[i]+ ") → "+ primeros[i])
+for (var i = 0; i < prodPrimeros.length; i++) {
+  console.log("Prim(" + prodPrimeros[i] + ") → " + primeros[i])
 }
 console.log(primeros)
 // console.log("Primeros ")
@@ -349,6 +341,6 @@ console.log(primeros)
 // console.log(prodPrimeros)
 console.log("-----------------Siguientes--------------------")
 for (i in prodPrimeros) {
-  console.log("Sig("+prodPrimeros[i]+ ") → "+ siguientes[i])
+  console.log("Sig(" + prodPrimeros[i] + ") → " + siguientes[i])
 }
 console.log(siguientes)
