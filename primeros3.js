@@ -2,10 +2,10 @@
 /*
     La alimentacion parte de un arreglo de Strings
 */
-let gramatica = ["S->T S'|if S'", "S'->ps S'", "T->as|if|λ"];
+let gramm = ["S->T S'|if S'", "S'->ps S'", "T->as|if|λ"];
 let produce = "->";
 /*
-    Se puede decir que es la gramatica final
+    Se puede decir que es la gramm final
 */
 let grammLL1 = [];
 let terminales = [];
@@ -21,11 +21,11 @@ let flag = true;
 let mapa= new Map();
 /*
 /*
-    La recurcion izquierda se ve cuando la porduccion de una gramatica
-    se produce a si misma como en el ejemplo de la gramatica anterior 
+    La recurcion izquierda se ve cuando la porduccion de una gramm
+    se produce a si misma como en el ejemplo de la gramm anterior 
             S->S|T
     Lo que hace el metodo es que le entra un string (o la linea de la
-    gramatica) y compara la produccion con el primer caracter que no 
+    gramm) y compara la produccion con el primer caracter que no 
     sea un no terminal y que sea el mismo que el que produce.
     Por eso se una el operador "===" para que compara y sea exacatemente
     igual
@@ -84,7 +84,7 @@ function recurcionIzquierda(line) {
 
         Se pregunta si no es igual al productor o si no esta el producto 
         y se hace la primera produccion de las betas y se pregunta si esta el prodcuto
-        y se hace la produccion de A' y se agrega a un arreglo como la gramatica final.
+        y se hace la produccion de A' y se agrega a un arreglo como la gramm final.
             
 */
 /*
@@ -121,7 +121,7 @@ function eliminarRecurcionIzq(line) {
 
 /**
  * -------------------Obtener terminales = Terminales y noTerminales = no Terminales----------
-    se obtienen ingresando como parametro un Gramatica[line], comparando las posiciones del array con su version
+    se obtienen ingresando como parametro un gramm[line], comparando las posiciones del array con su version
     mayuscula para No terminales y minuscula para terminales ademas de comprobar si ya existen mediante includes()
     para evitar repetir información. para noTerminales hace falta el productor que es el inicial y se lo agregamos en el segundo if().
  */
@@ -333,10 +333,10 @@ function buscarSiguientes(line, productorB) {
 
 
 /*
-Metodo main para leer la gramatica y ejecutar los respectivos 
-paso para poder comprobar si es una gramatica ll1
+Metodo main para leer la gramm y ejecutar los respectivos 
+paso para poder comprobar si es una gramm ll1
 */
-function leerGramatica(gramm) {
+function leergramm(gramm) {
   for (line in gramm) {
     if (recurcionIzquierda(gramm[line])) {
       eliminarRecurcionIzq(gramm[line]);
@@ -357,20 +357,20 @@ function leerGramatica(gramm) {
   }
 
 }
-//Alimenta el conjuntoTN con el Gramatica[line]
+//Alimenta el conjuntoTN con el gramm[line]
 function terminalesnoTerminales(gramm) {
   for (line in gramm) { conjuntoTN(gramm[line]); }
 }
 
-leerGramatica(gramatica);
-terminalesnoTerminales(gramatica);
-console.log("---------------Gramatica LL1-----------------")
+leergramm(gramm);
+terminalesnoTerminales(gramm);
+console.log("---------------gramm LL1-----------------")
 console.log(grammLL1)
 // console.log("Conjunto noTerminales:", noTerminales)
 // console.log("Conjunto terminales:", terminales)
-// terminalesnoTerminales(grammLL1);
-// console.log("Conjunto noTerminales posLL1:", noTerminales)
-// console.log("Conjunto terminales posLL1:", terminales)
+terminalesnoTerminales(grammLL1);
+console.log("Conjunto noTerminales posLL1:", noTerminales)
+console.log("Conjunto terminales posLL1:", terminales)
 // console.log(grammLL1);
 console.log("-----------------Primeros--------------------")
 for (var i = 0; i < prodPrimeros.length; i++) {
@@ -403,5 +403,5 @@ for (let clavevalor of mapa.entries()) {
 
 
 if(flag==false){
-  //console.log("La gramatica no es LL1 ya que se repite en la produccion : ", productor, "→ ", noEspacios[i][0])
-  console.log("La gramatica no es LL1 ")}
+  //console.log("La gramm no es LL1 ya que se repite en la produccion : ", productor, "→ ", noEspacios[i][0])
+  console.log("La gramm no es LL1 ")}
