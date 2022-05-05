@@ -13,6 +13,8 @@ let VN = [];
 let primeros=[];
 let prodPrimeros=[];
 let siguientes=[];
+let flag = true;
+let mapa= new Map();
 /*
     La recurcion izquierda se ve cuando la porduccion de una gramatica
     se produce a si misma como en el ejemplo de la gramatica anterior 
@@ -281,15 +283,26 @@ function buscarPrimeros(line) {
     noEspacios.push(produccion[i].split(" "));
   }
   for (i in noEspacios){
-      if(VT.includes(noEspacios[i][0])&&noEspacios[i][0]!="λ"){
+    if (mapa.has(productor)== false){
+        mapa.set(productor, [])
+    }
+      if(VT.includes(noEspacios[i][0])== true&&noEspacios[i][0]!="λ"){
         console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",noEspacios[i][0], "}")
+        mapa.get(productor).push(noEspacios[i][0]);
+
       }
-      //console.log("Productores: ",productor, "→", noEspacios[i])
-
+      else if (noEspacios[i][0]=="λ"&&primeros[i].includes("λ")){
+        console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",siguientes[i], "}")
+        mapa.get(productor).push(siguientes[i]);
+      }
+      else if(VN.includes(noEspacios[i][0])==true){
+        console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",primeros[i], "}")
+        for( j in primeros[i]){
+            mapa.get(productor).push(primeros[i][j]);
+        }
+      }
+    }
   }
- 
-  }
-
 
 /*
 Metodo main para leer la gramatica y ejecutar los respectivos 
@@ -348,3 +361,22 @@ console.log(siguientes)
 for (line in gramaticaLL1){
     buscarCP(gramaticaLL1[line]);
   }
+  //console.log(mapa);
+//   mapa.forEach((valor,clave)=> {
+//     console.log(`El productor es :${clave} y y sus producciones ${valor}`);
+//  })
+for (let clavevalor of mapa.entries()) {
+    let letrasDuplicadas = clavevalor[1].filter((elemento, index) => {
+        return clavevalor[1].indexOf(elemento) !== index;});
+    //console.log(clavevalor[1]);
+    if (letrasDuplicadas != ""){
+        flag = false;
+        //console.log(letrasDuplicadas);
+    }
+    
+}
+
+
+if(flag==false){
+    //console.log("La gramatica no es LL1 ya que se repite en la produccion : ", productor, "→ ", noEspacios[i][0])
+    console.log("La gramatica no es LL1 ")}

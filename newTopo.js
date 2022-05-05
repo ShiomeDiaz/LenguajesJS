@@ -1,4 +1,4 @@
-let gramm = ["S->A sp s p|A sp t|A sp", "A->λ|c D|if"];
+let gramm = ["S->A sp s p|A sp t|A sp", "A->λ|c d|if"];
 //let gramm = ["S->S ps t|T t|if", "T->as|if|λ"];["S->A sp s p|A sp t|A sp", "A->λ|c D|if"]
 /*
 let gramm = [
@@ -65,10 +65,10 @@ for (let i = 0; i < termAndNoTerm.length; i++) {
       noTerminales.push(aux[j]);
     } else if (!esNoTerminal(aux[j]) && !terminales.includes(aux[j])) {
       terminales.push(aux[j]);
-    } else if (!terminales.includes("λ")) {
-      terminales.push("λ");
     } else if (aux[j].includes("'") && !noTerminales.includes(aux[j])) {
       noTerminales.push(aux[j]);
+    } else if (!terminales.includes("λ")) {
+      terminales.push("λ");
     }
   }
 }
@@ -286,6 +286,7 @@ for (let i = 0; i < gramm.length; i++) {
           let noEspacios = [];
           let prim = [];
           let ultimo = []
+          console.log("No terminales en primeros: ", noTerminales)
           prodPrimeros.push(productor);
         
           for (i in produccion) {
@@ -305,7 +306,7 @@ for (let i = 0; i < gramm.length; i++) {
                       if (noEspacios[p][1] == grammLL1[k][0]) {
                         buscarPrimeros(grammLL1[k]);
                         prodPrimeros.pop()
-                        return
+                        ultimo = primeros[primeros.length - 1]
                       }
                     }
         
