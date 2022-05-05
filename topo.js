@@ -381,7 +381,7 @@ for (let i = 0; i < gramm.length; i++) {
                 contador++
                 if (noEspacios[i][j] == productorB) {
                   for (k in siguientes) {
-                    if (j == noEspacios.length - 1 && sig.includes(siguientes[posProductor][k]) == false) {
+                    if (j == noEspacios[i].length - 1 && sig.includes(siguientes[posProductor][k]) == false) {
                       sig.push(siguientes[posProductor])
                       sig = sig.flat()
                     } if (j <= noEspacios[i].length - 2) {
@@ -426,7 +426,15 @@ for (let i = 0; i < gramm.length; i++) {
           if (siguientes.length == 0) {
             sig.push("$")
           }
+          console.log("prueba 435")
+            console.log(productorB)
+            console.log(line)
+            console.log(sig)
           if (sig[0] != null) {
+            console.log("prueba 435")
+            console.log(productorB)
+            console.log(line)
+            console.log(sig)
             siguientes.push(sig)
           }
         }
@@ -491,6 +499,7 @@ for (i in prodPrimeros) {
   console.log("Sig(" + prodPrimeros[i] + ") → " + siguientes[i])
 }
 console.log(siguientes)
+console.log(noTerminales)
 for (line in grammLL1){
   buscarCP(grammLL1[line]);
 }
