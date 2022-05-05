@@ -154,8 +154,8 @@ function buscarPrimeros(line) {
   let produccion = producido.split("|");
   let noEspacios = [];
   let prim= [];
+  let ultimo = []
   prodPrimeros.push(productor);
-  console.log("prueba 158")
 
   for (i in produccion) {
     noEspacios.push(produccion[i].split(" "));
@@ -171,7 +171,7 @@ function buscarPrimeros(line) {
             }
             if(VN.includes(noEspacios[p][1])){
               for(k in gramaticaLL1){
-                if(noEspacios[p][0] == gramaticaLL1[k][0]){
+                if(noEspacios[p][1] == gramaticaLL1[k][0]){
                   buscarPrimeros(gramaticaLL1[k]);
                   prodPrimeros.pop()
                   return
@@ -188,11 +188,22 @@ function buscarPrimeros(line) {
         if(noEspacios[p][0] == gramaticaLL1[k][0]){
           buscarPrimeros(gramaticaLL1[k]);
           prodPrimeros.pop()
-          return
+          ultimo= primeros[primeros.length-1]
+          
         }
       }  
     }
   }
+  if(ultimo[0] != null){
+  for(i in prim){
+    if(prim[0] != null && ultimo.includes(prim[i]) == false){
+      primeros[primeros.length-1].push(prim)
+      return
+    }
+  } 
+  return
+  }
+
   if (prim[0] != null){
     primeros.push(prim);
   }else{
