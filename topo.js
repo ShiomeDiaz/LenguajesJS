@@ -1,4 +1,4 @@
-let gramm = ["S->A sp s p|A sp t|A sp", "A->λ|c D|if"];
+let gramm = ["S->A sp s p|A sp t|A sp", "A->λ|c d|if"];
 //let gramm = ["S->S ps t|T t|if", "T->as|if|λ"];["S->A sp s p|A sp t|A sp", "A->λ|c D|if"]
 /*
 let gramm = [
@@ -32,6 +32,8 @@ function separador(gramm) {
     noTerminales.push(produce);
     producto.push(producido);
   }
+  
+
 }
 // Parte donde se separa los productores y lo producido
 separador(gramm);
@@ -73,9 +75,9 @@ for (let i = 0; i < termAndNoTerm.length; i++) {
   }
 }
 
-console.log("Terminales y no terminales separados");
-console.log(noTerminales);
-console.log(terminales);
+// console.log("Terminales y no terminales separados");
+// console.log(noTerminales);
+// console.log(terminales);
 
 function extractProduccionesNoOr(line) {
   let productosNoOr = [];
@@ -291,6 +293,10 @@ for (let i = 0; i < gramm.length; i++) {
           for (i in produccion) {
             noEspacios.push(produccion[i].split(" "));
           }
+          if(noTerminales.includes(productor)==false){
+            noTerminales.push(productor);
+          }
+          //console.log("No Termis: ", noTerminales)
           for (p in noEspacios) {
             for (j in terminales) {
               if (noEspacios[p][0] == terminales[j] && prim.includes(noEspacios[p][0]) == false) {
@@ -305,7 +311,7 @@ for (let i = 0; i < gramm.length; i++) {
                       if (noEspacios[p][1] == grammLL1[k][0]) {
                         buscarPrimeros(grammLL1[k]);
                         prodPrimeros.pop()
-                        return
+                        ultimo = primeros[primeros.length - 1]
                       }
                     }
         
@@ -364,6 +370,7 @@ for (let i = 0; i < gramm.length; i++) {
               posProductor = i
             }
           }
+          
         
           for (i in produccion) {
             noEspacios.push(produccion[i].split(" "));
@@ -379,6 +386,7 @@ for (let i = 0; i < gramm.length; i++) {
                       sig = sig.flat()
                     } if (j <= noEspacios[i].length - 2) {
                       if (noEspacios[i][contador] == "λ" && sig.includes(siguientes[posProductor][k]) == false) {
+                        console.log("falle maestro")
                         sig.push(siguientes[posProductor])
                         sig = sig.flat()
                       }
@@ -390,9 +398,11 @@ for (let i = 0; i < gramm.length; i++) {
                         for (l in prodPrimeros) {
                           for (m in primeros[l]) {
                             if (prodPrimeros[l] == noEspacios[i][contador] && prims.includes(primeros[l][m]) == false) {
+                              console.log("Sere yo maestro: ", primeros[l][m])
                               prims.push(primeros[l][m])
                               prims = prims.flat()
                               if (prims.includes("λ") && prims.includes(siguientes[l][m]) == false) {
+                                console.log("No, yo te falle")
                                 prims.push(siguientes[l])
                               }
                               else {
@@ -466,9 +476,11 @@ for (let i = 0; i < gramm.length; i++) {
           }
         
         
-        console.log("---------------gramm LL1-----------------")
-console.log(grammLL1)
-
+console.log("---------------gramm LL1-----------------");
+console.log(grammLL1);
+// console.log("Terminales y no terminales separados");
+console.log("No terminales: ", noTerminales);
+console.log("Terminales: ",terminales);
 console.log("-----------------Primeros--------------------")
 for (var i = 0; i < prodPrimeros.length; i++) {
   console.log("Prim(" + prodPrimeros[i] + ") → " + primeros[i])
