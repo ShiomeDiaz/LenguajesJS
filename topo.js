@@ -1,11 +1,12 @@
 let gramm = ["S->A sp s p|A sp t|A sp", "A->λ|c D|if"];
-//let gramm = ["S->S ps t|T t|if", "T->as|if|λ"];
+//let gramm = ["S->S ps t|T t|if", "T->as|if|λ"];["S->A sp s p|A sp t|A sp", "A->λ|c D|if"]
 /*
 let gramm = [
   "I->if ( comp ) { instr }|if ( comp ) { instr } else { instr }",
   "A->]|sp if|comp",
 ];
 */
+let produce = "->";
 let productores = [];
 let producto = [];
 
@@ -440,7 +441,7 @@ for (let i = 0; i < gramm.length; i++) {
                 mapa.get(productor).push(noEspacios[i][0]);
         
               }
-              else if (noEspacios[i][0]=="λ"&&primeros[i].includes("λ")){
+              else if (noEspacios[i][0]=="λ"&& primeros[i].includes("λ")){
                 console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",siguientes[i], "}")
                 mapa.get(productor).push(siguientes[i]);
               }
@@ -465,21 +466,12 @@ for (let i = 0; i < gramm.length; i++) {
         
         console.log("---------------gramm LL1-----------------")
 console.log(grammLL1)
-// console.log("Conjunto noTerminales:", noTerminales)
-// console.log("Conjunto terminales:", terminales)
-// terminalesnoTerminales(grammLL1);
-// console.log("Conjunto noTerminales posLL1:", noTerminales)
-// console.log("Conjunto terminales posLL1:", terminales)
-// console.log(grammLL1);
+
 console.log("-----------------Primeros--------------------")
 for (var i = 0; i < prodPrimeros.length; i++) {
   console.log("Prim(" + prodPrimeros[i] + ") → " + primeros[i])
 }
 console.log(primeros)
-// console.log("Primeros ")
-// console.log(primeros)
-// console.log("prodPrimeros ")
-// console.log(prodPrimeros)
 console.log("-----------------Siguientes--------------------")
 for (i in prodPrimeros) {
   console.log("Sig(" + prodPrimeros[i] + ") → " + siguientes[i])
@@ -488,22 +480,25 @@ console.log(siguientes)
 for (line in grammLL1){
   buscarCP(grammLL1[line]);
 }
-
-for (let clavevalor of mapa.entries()) {
-  let letrasDuplicadas = clavevalor[1].filter((elemento, index) => {
-      return clavevalor[1].indexOf(elemento) !== index;});
-  //console.log(clavevalor[1]);
-  if (letrasDuplicadas != ""){
-      flag = false;
-      //console.log(letrasDuplicadas);
+function verificarLL1(){
+  for (let clavevalor of mapa.entries()) {
+    let letrasDuplicadas = clavevalor[1].filter((elemento, index) => {
+        return clavevalor[1].indexOf(elemento) !== index;});
+    //console.log(clavevalor[1]);
+    if (letrasDuplicadas != ""){
+        flag = false;
+        //console.log(letrasDuplicadas);
+    }
+    
   }
-  
-}
 
 
-if(flag==false){
-  //console.log("La gramm no es LL1 ya que se repite en la produccion : ", productor, "→ ", noEspacios[i][0])
-  console.log("La gramm no es LL1 ")
-}else{
-  console.log("La gramm es LL1 ")
+  if(flag==false){
+    //console.log("La gramm no es LL1 ya que se repite en la produccion : ", productor, "→ ", noEspacios[i][0])
+    console.log("La gramm no es LL1 ")
+  }else{
+    console.log("La gramm es LL1 ")
+  }
 }
+
+verificarLL1()
