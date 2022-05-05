@@ -1,5 +1,5 @@
-//let gramm = ["S->A sp s|A sp t|A sp", "A->λ|c D|if"];
-let gramm = ["S->S ps|T|if", "T->as|if|λ"];
+let gramm = ["S->A sp s p|A sp t|A sp", "A->λ|c D|if"];
+//let gramm = ["S->S ps t|T t|if", "T->as|if|λ"];
 /*
 let gramm = [
   "I->if ( comp ) { instr }|if ( comp ) { instr } else { instr }",
@@ -110,7 +110,6 @@ function factorizacionIzq(line) {
   //Bandera para poder agregarlo a la new produccion
   let flag = 0;
   let newAllCaracteeres = noTerminales.concat(terminales);
-
   /*
    * Lo primero que hay que hacer es agregar lo que hay repetido en la
    * linea para factorizar, el ejemplo seria que esta
@@ -126,33 +125,23 @@ function factorizacionIzq(line) {
         flag++;
       }
     }
-    if (flag >= 2) {
+    if (flag < 2) {
       for (let j = 0; j < copyGram.length; j++) {
         for (let k = 0; k < copyGram[j].length; k++) {
-          /*
-           * Aca entra si en esa produccion encuentra el caracter 2 o mas veces
-           * preguta si es la posicion 0 y si es igual al caracter que entro y en
-           * la produccion follow hay algo, si no hay nada este es el inicio de
-           * como va a quedar nuestra factorizacion por eso a new follow
-           * queda con su nuevo productor que seria S'
-           */
-          if (
-            copyGram[j][k] === newAllCaracteeres[i] &&
-            k == 0 &&
-            newProduccionFollow === ""
-          ) {
-            newProduccionFollow = productor + "'" + "->" + copyGram[j][k];
-          } else if (
-            /*
-             * Aca pregunta si el valor anterior si esta dentro de lo que se debe factorizar
-             * si esta en new follow y si el valor a ingresar no esta agregado lo agrega con el espacio
-             * y se va para el final
-             */
-            copyGram[j][k] === newAllCaracteeres[i] &&
-            newProduccionFollow.includes(copyGram[j][k - 1]) &&
-            !newProduccionFollow.includes(copyGram[j][k])
-          ) {
-            newProduccionFollow = newProduccionFollow + " " + copyGram[j][k];
+          if (copyGram[j][k] === newAllCaracteeres[i]) {
+            if (newProduccionFollow === "") {
+              newProduccionFollow = `${productor}'->${copyGram[j][k]}`;
+            } else {
+              if (!newProduccionFollow.includes(copyGram[j][k])) {
+                if (newProduccionFollow.includes(copyGram[j][k - 1])) {
+                  newProduccionFollow =
+                    newProduccionFollow + " " + copyGram[j][k];
+                } else {
+                  newProduccionFollow =
+                    newProduccionFollow + `|${copyGram[j][k]}`;
+                }
+              }
+            }
           }
         }
       }
@@ -160,34 +149,23 @@ function factorizacionIzq(line) {
     } else {
       for (let j = 0; j < copyGram.length; j++) {
         for (let k = 0; k < copyGram[j].length; k++) {
-          if (
-            copyGram[j][k] === newAllCaracteeres[i] &&
-            j == 0 &&
-            newProduccionFirst === "" &&
-            newProduccionFollow.includes(copyGram[j][k - 1])
-          ) {
-            newProduccionFirst =
-              productor + "->" + productor + "' " + copyGram[j][k];
-          } else if (
-            copyGram[j][k] === newAllCaracteeres[i] &&
-            !newProduccionFirst.includes(copyGram[j][k]) &&
-            newProduccionFollow.includes(copyGram[j][k - 1])
-          ) {
-            newProduccionFirst =
-              newProduccionFirst + "|" + productor + "' " + copyGram[j][k];
-          } else if (
-            newProduccionFollow.includes(copyGram[j][k]) &&
-            newProduccionFollow.includes(copyGram[j][k - 1]) &&
-            copyGram[j][k + 1] === undefined &&
-            !newProduccionFirst.includes(`|${productor}'`)
-          ) {
-            newProduccionFirst = newProduccionFirst + "|" + productor + "'";
-          } //Creo que hace falta if para cuando este S sp t t y para cuando sea S sp s t
+          if (copyGram[j][k] === newAllCaracteeres[i]) {
+            if (newProduccionFirst === "") {
+              newProduccionFirst = `${productor}->${copyGram[j][k]}`;
+            } else if (
+              newProduccionFirst.includes(copyGram[j][k - 1]) &&
+              !newProduccionFirst.includes(copyGram[j][k])
+            ) {
+              newProduccionFirst = newProduccionFirst + " " + copyGram[j][k];
+            }
+          }
         }
       }
       flag = 0;
     }
   }
+  newProduccionFirst = newProduccionFirst + ` ${productor}'`;
+  newProduccionFollow = newProduccionFollow + "|λ";
   grammLL1.push(newProduccionFirst, newProduccionFollow);
   console.log("Firs producction: " + newProduccionFirst);
   console.log("Follow produccion: " + newProduccionFollow);
@@ -229,6 +207,18 @@ function tieneRecursionIzquierda(line) {
   }
 }
 
+function arrayToString(arr) {
+  let cadena = "";
+  for (let i = 0; i < arr.length; i++) {
+    if (i == 0) {
+      cadena = arr[i];
+    } else {
+      cadena = cadena + " " + arr[i];
+    }
+  }
+  return cadena;
+}
+
 function eliminarRecursionIzq(line) {
   let [productor, produccion] = line.split("->");
   let copyGram = extractProduccionesNoOr(produccion.split("|"));
@@ -239,8 +229,10 @@ function eliminarRecursionIzq(line) {
       for (let j = 0; j < copyGram[i].length; j++) {
         if (copyGram[i][j] != productor) {
           if (newFollow === "") {
-            newFollow = `${productor}'->${copyGram[i][j]} ${productor}'`;
-          } else {
+            newFollow = `${productor}'->${arrayToString(
+              copyGram[i].filter((char) => char != productor)
+            )} ${productor}'`;
+          } else if (!newFollow.includes(copyGram[i][j])) {
             newFollow = newFollow + `|${copyGram[i][j]} ${productor}'`;
           }
         }
@@ -249,9 +241,12 @@ function eliminarRecursionIzq(line) {
       for (let j = 0; j < copyGram[i].length; j++) {
         if (copyGram[i][j] != productor) {
           if (newFirst === "") {
-            newFirst = `${productor}->${copyGram[i][j]} ${productor}'`;
-          } else {
-            newFirst = newFirst + `|${copyGram[i][j]} ${productor}'`;
+            newFirst = `${productor}->${arrayToString(
+              copyGram[i]
+            )} ${productor}'`;
+          } else if (!newFirst.includes(copyGram[i][j])) {
+            newFirst =
+              newFirst + `|${arrayToString(copyGram[i])} ${productor}'`;
           }
         }
       }
