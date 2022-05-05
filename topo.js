@@ -59,6 +59,8 @@ for (let i = 0; i < termAndNoTerm.length; i++) {
       terminales.push(aux[j]);
     } else if (!terminales.includes("λ")) {
       terminales.push("λ");
+    } else if (aux[j].includes("'") && !noTerminales.includes(aux[j])) {
+      noTerminales.push(aux[j]);
     }
   }
 }
