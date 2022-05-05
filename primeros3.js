@@ -220,24 +220,56 @@ function buscarPrimeros(line) {
         si ß es λ, entonces agregar a Sig(x) los sig(A)
 
  */
- function buscarSiguientes(line, produc){
+ function buscarSiguientes(line, productorB){
    let sig= [];
    let [productor, producido] = line.split("->");
    let produccion = producido.split("|");
    let noEspacios = [];
+   let posProductor =0;
+   let contador=0;
+   for (i in prodPrimeros){
+     if(productor == prodPrimeros[i]){
+       posProductor=i
+     }
+   }
 
    for (i in produccion) {
      noEspacios.push(produccion[i].split(" "));
     }
-    console.log("prueba 220 ")
-    console.log(produccion)
-    console.log(noEspacios)
-
-    if(noEspacios.includes(produc) == true){
-      console.log("prueba 221 "+noEspacios)
+    for(i in noEspacios){
+      if(noEspacios[i].includes(productorB) == true){
+            console.log("prueba 240 ")
+            console.log(posProductor)
+            console.log(productorB)
+            console.log(noEspacios[i])
+            for(j in noEspacios[i]){
+              contador++
+              if(noEspacios[i][j] == productorB){
+                for (k in siguientes){
+                  if(j == noEspacios.length-1 && sig.includes(siguientes[posProductor][k]) == false){
+                    sig.push(siguientes[posProductor])
+                    sig= sig.flat()
+                  }if(j == noEspacios[i].length-2){
+                      console.log("prueba 243 ")
+                      console.log(contador)
+                      console.log(noEspacios[i][contador-1])
+                      console.log(noEspacios[i])
+                    if(noEspacios[i][contador-1] == "λ" && sig.includes(siguientes[posProductor][k]) == false){
+                      sig.push(siguientes[posProductor])
+                      sig= sig.flat()
+                      console.log("prueba 244 ")
+                      console.log(productorB)
+                      console.log(noEspacios[i])
+                    }
+                  }
+                } 
+                
+              } 
+        }
+      }
     }
+    
     // console.log("prueba 220 "+produccion)
-   
    if(siguientes.length==0){
      sig.push("$")
     }
@@ -284,8 +316,8 @@ function leerGramatica(gramm) {
     buscarPrimeros(gramaticaLL1[line]);
     
   }
-  for (i in prodPrimeros){
-    for (line in gramaticaLL1){
+  for (let i=0; i< prodPrimeros.length;i++){
+    for (let line=0; line< gramaticaLL1.length; line++){
       buscarSiguientes(gramaticaLL1[line], prodPrimeros[i]);
     }
   }
@@ -310,6 +342,7 @@ console.log("-----------------Primeros--------------------")
 for (var i = 0; i <prodPrimeros.length; i++) {
   console.log("Prim("+prodPrimeros[i]+ ") → "+ primeros[i])
 }
+console.log(primeros)
 // console.log("Primeros ")
 // console.log(primeros)
 // console.log("prodPrimeros ")
