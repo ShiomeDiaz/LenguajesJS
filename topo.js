@@ -370,8 +370,8 @@ for (let i = 0; i < gramm.length; i++) {
               posProductor = i
             }
           }
-          
-        
+
+
           for (i in produccion) {
             noEspacios.push(produccion[i].split(" "));
           }

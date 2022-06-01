@@ -1,4 +1,5 @@
-let gramm = ["S->A sp s p|A sp t|A sp", "A->λ|c D|if"];
+let gramm =["S->A sp s p|A sp t|A sp", "A->λ|c d|if"];
+//["S->A sp s p|A sp t|A sp", "A->λ|c d|if"], ["S->A sp s p|A sp t|A sp", "A->λ|c D|if"]
 
 let productores = [];
 let producido = [];
@@ -13,6 +14,8 @@ let siguientes = [];
 let prodPrimeros = [];
 let listaPrimeros = [];
 let listaSiguientes = [];
+let flag = true;
+let mapa= new Map();
 
 function esNoTerminal(caracter) {
   return /[A-Z]/.test(caracter);
@@ -305,13 +308,143 @@ function buscarPrimeros(line) {
   }
 }
 
+function buscarSiguientes(line, productorB) {
+  let sig = [];
+  let [productor, producido] = line.split("->");
+  let produccion = producido.split("|");
+  let noEspacios = [];
+  let posProductor = 0;
+  let contador = 0;
+  let prims = [];
+  for (i in prodPrimeros) {
+    if (productor == prodPrimeros[i]) {
+      posProductor = i
+    }
+  }
+  for (i in produccion) {
+    noEspacios.push(produccion[i].split(" "));
+  }
+  for (i in noEspacios) {
+    if (noEspacios[i].includes(productorB) == true) {
+      for (j in noEspacios[i]) {
+        contador++
+        if (noEspacios[i][j] == productorB) {
+          for (k in siguientes) {
+            if (j == noEspacios[i].length - 1 && sig.includes(siguientes[posProductor][k]) == false) {
+              sig.push(siguientes[posProductor])
+              sig = sig.flat()
+            } if (j <= noEspacios[i].length - 2) {
+              if (noEspacios[i][contador] == "λ" && sig.includes(siguientes[posProductor][k]) == false) {
+                console.log("falle maestro")
+                sig.push(siguientes[posProductor])
+                sig = sig.flat()
+              }
+              if (terminales.includes(noEspacios[i][contador]) && sig.includes(noEspacios[i][contador]) == false) {
+                sig.push(noEspacios[i][contador])
+                sig = sig.flat()
+              }
+              if (noTerminales.includes(noEspacios[i][contador])) {
+                for (l in prodPrimeros) {
+                  for (m in primeros[l]) {
+                    if (prodPrimeros[l] == noEspacios[i][contador] && prims.includes(primeros[l][m]) == false) {
+                      console.log("Sere yo maestro: ", primeros[l][m])
+                      prims.push(primeros[l][m])
+                      prims = prims.flat()
+                      if (prims.includes("λ") && prims.includes(siguientes[l][m]) == false) {
+                        console.log("No, yo te falle")
+                        prims.push(siguientes[l])
+                      }
+                      else {
+                        sig.push(prims)
+                        sig = sig.flat()
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+    if (siguientes.length == 0) {
+      sig.push("$")
+    }
+
+    if (sig[0] != null) {
+      siguientes.push(sig)
+    }
+  }
+  function buscarCP(line){
+              
+    let [productor, producido] = line.split("->");
+    let produccion = producido.split("|");
+    let noEspacios = [];
+    for (i in produccion) {
+      noEspacios.push(produccion[i].split(" "));
+    }
+    for (i in noEspacios){
+      if (mapa.has(productor)== false){
+          mapa.set(productor, [])
+      }
+        if(terminales.includes(noEspacios[i][0])== true&&noEspacios[i][0]!="λ"){
+          console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",noEspacios[i][0], "}")
+          mapa.get(productor).push(noEspacios[i][0]);
+  
+        }
+        else if (noEspacios[i][0]=="λ"&& primeros[i].includes("λ")){
+          console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",siguientes[i], "}")
+          mapa.get(productor).push(siguientes[i]);
+        }
+        else if(noTerminales.includes(noEspacios[i][0])==true){
+          console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",primeros[i], "}")
+          for( j in primeros[i]){
+              mapa.get(productor).push(primeros[i][j]);
+          }
+        }
+      }
+    }
+
 function first(gramm) {
   for (let line in gramm) {
     buscarPrimeros(gramm[line]);
   }
-
-  for (let i = 0; i < prodPrimeros.length; i++) {
+  for (let i in prodPrimeros) {
     listaPrimeros.push(`Prim( ${prodPrimeros[i]} ) -> ${primeros[i]}`);
+  }
+}
+
+function second(gramm){
+
+    for (let i in prodPrimeros) {
+      for (let line in gramm) {
+        buscarSiguientes(gramm[line], prodPrimeros[i]);
+      }
+    }
+    for (let i in prodPrimeros) {
+      listaSiguientes.push(`Sig( ${prodPrimeros[i]} ) -> ${siguientes[i]}`);
+    }
+}
+
+function cp(gramm){
+  for (line in gramm){
+    buscarCP(gramm[line]);
+  }
+}
+
+function verificarLL1(){
+  for (let clavevalor of mapa.entries()) {
+    let letrasDuplicadas = clavevalor[1].filter((elemento, index) => {
+        return clavevalor[1].indexOf(elemento) !== index;});
+    if (letrasDuplicadas != ""){
+        flag = false;
+    }
+  }
+  if(flag==false){
+    console.log("La gramm no es LL1 ")
+  }else{
+    console.log("La gramm es LL1 ")
   }
 }
 
@@ -329,6 +462,17 @@ console.log(terminales);
 console.log(noTerminales);
 console.log("---------Primeros---------");
 first(grammLL1);
-for (let i = 0; i < prodPrimeros.length; i++) {
+for (i in prodPrimeros) {
   console.log(`Prim(${prodPrimeros[i]}) -> ${primeros[i]}`);
 }
+console.log("-----------------Siguientes--------------------")
+second(grammLL1);
+for (i in prodPrimeros) {
+  console.log(`Sig(${prodPrimeros[i]}) -> ${siguientes[i]}`)
+}
+console.log("-----------------Conjunto Prediccion--------------------")
+cp(grammLL1)
+
+console.log("-----------------verificar LL1--------------------")
+verificarLL1()
+//console.log("aqui sig: ",listaSiguientes)
