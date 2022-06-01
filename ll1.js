@@ -1,4 +1,4 @@
-let gramm =["S->A sp s p|A sp t|A sp", "A->λ|c d|if"];
+let gramm = ["S->A sp s p|A sp t|A sp", "A->λ|c d|if"];
 //["S->A sp s p|A sp t|A sp", "A->λ|c d|if"], ["S->A sp s p|A sp t|A sp", "A->λ|c D|if"]
 
 let productores = [];
@@ -9,13 +9,14 @@ let terminales = [];
 let termyNoTerm = [];
 let grammNoRecursion = [];
 let grammLL1 = [];
+let grammLR0 = [];
 let primeros = [];
 let siguientes = [];
 let prodPrimeros = [];
 let listaPrimeros = [];
 let listaSiguientes = [];
 let flag = true;
-let mapa= new Map();
+let mapa = new Map();
 
 function esNoTerminal(caracter) {
   return /[A-Z]/.test(caracter);
@@ -318,7 +319,7 @@ function buscarSiguientes(line, productorB) {
   let prims = [];
   for (i in prodPrimeros) {
     if (productor == prodPrimeros[i]) {
-      posProductor = i
+      posProductor = i;
     }
   }
   for (i in produccion) {
@@ -327,36 +328,51 @@ function buscarSiguientes(line, productorB) {
   for (i in noEspacios) {
     if (noEspacios[i].includes(productorB) == true) {
       for (j in noEspacios[i]) {
-        contador++
+        contador++;
         if (noEspacios[i][j] == productorB) {
           for (k in siguientes) {
-            if (j == noEspacios[i].length - 1 && sig.includes(siguientes[posProductor][k]) == false) {
-              sig.push(siguientes[posProductor])
-              sig = sig.flat()
-            } if (j <= noEspacios[i].length - 2) {
-              if (noEspacios[i][contador] == "λ" && sig.includes(siguientes[posProductor][k]) == false) {
-                console.log("falle maestro")
-                sig.push(siguientes[posProductor])
-                sig = sig.flat()
+            if (
+              j == noEspacios[i].length - 1 &&
+              sig.includes(siguientes[posProductor][k]) == false
+            ) {
+              sig.push(siguientes[posProductor]);
+              sig = sig.flat();
+            }
+            if (j <= noEspacios[i].length - 2) {
+              if (
+                noEspacios[i][contador] == "λ" &&
+                sig.includes(siguientes[posProductor][k]) == false
+              ) {
+                console.log("falle maestro");
+                sig.push(siguientes[posProductor]);
+                sig = sig.flat();
               }
-              if (terminales.includes(noEspacios[i][contador]) && sig.includes(noEspacios[i][contador]) == false) {
-                sig.push(noEspacios[i][contador])
-                sig = sig.flat()
+              if (
+                terminales.includes(noEspacios[i][contador]) &&
+                sig.includes(noEspacios[i][contador]) == false
+              ) {
+                sig.push(noEspacios[i][contador]);
+                sig = sig.flat();
               }
               if (noTerminales.includes(noEspacios[i][contador])) {
                 for (l in prodPrimeros) {
                   for (m in primeros[l]) {
-                    if (prodPrimeros[l] == noEspacios[i][contador] && prims.includes(primeros[l][m]) == false) {
-                      console.log("Sere yo maestro: ", primeros[l][m])
-                      prims.push(primeros[l][m])
-                      prims = prims.flat()
-                      if (prims.includes("λ") && prims.includes(siguientes[l][m]) == false) {
-                        console.log("No, yo te falle")
-                        prims.push(siguientes[l])
-                      }
-                      else {
-                        sig.push(prims)
-                        sig = sig.flat()
+                    if (
+                      prodPrimeros[l] == noEspacios[i][contador] &&
+                      prims.includes(primeros[l][m]) == false
+                    ) {
+                      console.log("Sere yo maestro: ", primeros[l][m]);
+                      prims.push(primeros[l][m]);
+                      prims = prims.flat();
+                      if (
+                        prims.includes("λ") &&
+                        prims.includes(siguientes[l][m]) == false
+                      ) {
+                        console.log("No, yo te falle");
+                        prims.push(siguientes[l]);
+                      } else {
+                        sig.push(prims);
+                        sig = sig.flat();
                       }
                     }
                   }
@@ -368,43 +384,78 @@ function buscarSiguientes(line, productorB) {
       }
     }
   }
-    if (siguientes.length == 0) {
-      sig.push("$")
-    }
+  if (siguientes.length == 0) {
+    sig.push("$");
+  }
 
-    if (sig[0] != null) {
-      siguientes.push(sig)
+  if (sig[0] != null) {
+    siguientes.push(sig);
+  }
+}
+function buscarCP(line) {
+  let [productor, producido] = line.split("->");
+  let produccion = producido.split("|");
+  let noEspacios = [];
+  for (i in produccion) {
+    noEspacios.push(produccion[i].split(" "));
+  }
+  for (i in noEspacios) {
+    if (mapa.has(productor) == false) {
+      mapa.set(productor, []);
+    }
+    if (
+      terminales.includes(noEspacios[i][0]) == true &&
+      noEspacios[i][0] != "λ"
+    ) {
+      console.log(
+        "CP: ",
+        productor,
+        "→",
+        noEspacios[i],
+        "Prim(",
+        noEspacios[i],
+        ")",
+        " = ",
+        "{",
+        noEspacios[i][0],
+        "}"
+      );
+      mapa.get(productor).push(noEspacios[i][0]);
+    } else if (noEspacios[i][0] == "λ" && primeros[i].includes("λ")) {
+      console.log(
+        "CP: ",
+        productor,
+        "→",
+        noEspacios[i],
+        "Prim(",
+        noEspacios[i],
+        ")",
+        " = ",
+        "{",
+        siguientes[i],
+        "}"
+      );
+      mapa.get(productor).push(siguientes[i]);
+    } else if (noTerminales.includes(noEspacios[i][0]) == true) {
+      console.log(
+        "CP: ",
+        productor,
+        "→",
+        noEspacios[i],
+        "Prim(",
+        noEspacios[i],
+        ")",
+        " = ",
+        "{",
+        primeros[i],
+        "}"
+      );
+      for (j in primeros[i]) {
+        mapa.get(productor).push(primeros[i][j]);
+      }
     }
   }
-  function buscarCP(line){
-              
-    let [productor, producido] = line.split("->");
-    let produccion = producido.split("|");
-    let noEspacios = [];
-    for (i in produccion) {
-      noEspacios.push(produccion[i].split(" "));
-    }
-    for (i in noEspacios){
-      if (mapa.has(productor)== false){
-          mapa.set(productor, [])
-      }
-        if(terminales.includes(noEspacios[i][0])== true&&noEspacios[i][0]!="λ"){
-          console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",noEspacios[i][0], "}")
-          mapa.get(productor).push(noEspacios[i][0]);
-  
-        }
-        else if (noEspacios[i][0]=="λ"&& primeros[i].includes("λ")){
-          console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",siguientes[i], "}")
-          mapa.get(productor).push(siguientes[i]);
-        }
-        else if(noTerminales.includes(noEspacios[i][0])==true){
-          console.log("CP: ",productor, "→", noEspacios[i], "Prim(", noEspacios[i],")"," = ", "{",primeros[i], "}")
-          for( j in primeros[i]){
-              mapa.get(productor).push(primeros[i][j]);
-          }
-        }
-      }
-    }
+}
 
 function first(gramm) {
   for (let line in gramm) {
@@ -415,37 +466,72 @@ function first(gramm) {
   }
 }
 
-function second(gramm){
-
-    for (let i in prodPrimeros) {
-      for (let line in gramm) {
-        buscarSiguientes(gramm[line], prodPrimeros[i]);
-      }
+function second(gramm) {
+  for (let i in prodPrimeros) {
+    for (let line in gramm) {
+      buscarSiguientes(gramm[line], prodPrimeros[i]);
     }
-    for (let i in prodPrimeros) {
-      listaSiguientes.push(`Sig( ${prodPrimeros[i]} ) -> ${siguientes[i]}`);
-    }
+  }
+  for (let i in prodPrimeros) {
+    listaSiguientes.push(`Sig( ${prodPrimeros[i]} ) -> ${siguientes[i]}`);
+  }
 }
 
-function cp(gramm){
-  for (line in gramm){
+function cp(gramm) {
+  for (line in gramm) {
     buscarCP(gramm[line]);
   }
 }
 
-function verificarLL1(){
+function verificarLL1() {
   for (let clavevalor of mapa.entries()) {
     let letrasDuplicadas = clavevalor[1].filter((elemento, index) => {
-        return clavevalor[1].indexOf(elemento) !== index;});
-    if (letrasDuplicadas != ""){
-        flag = false;
+      return clavevalor[1].indexOf(elemento) !== index;
+    });
+    if (letrasDuplicadas != "") {
+      flag = false;
     }
   }
-  if(flag==false){
-    console.log("La gramm no es LL1 ")
-  }else{
-    console.log("La gramm es LL1 ")
+  if (flag == false) {
+    console.log("La gramm no es LL1 ");
+  } else {
+    console.log("La gramm es LL1 ");
   }
+}
+
+function extendGramm(gramm) {
+  for (let i = 0; i < gramm.length; i++) {
+    let [productor, produccion] = gramm[i].split("->");
+    let newProducction = produccion.split("|");
+    for (let j = 0; j < newProducction.length; j++) {
+      if (grammLR0.length === 0) {
+        addNewProducction(gramm);
+      }
+      grammLR0.push(`${productor}->.${newProducction[j]}`);
+    }
+  }
+}
+
+function addNewProducction(gramm) {
+  if (gramm[0][0] != "S") {
+    grammLR0.push(`S->.${gramm[0][0]}`);
+  } else {
+    grammLR0.push(`N->.${gramm[0][0]}`);
+  }
+}
+
+function parserLR0(gramlr0) {
+  let canonica = gramlr0;
+  let actualState = [];
+  let newState = [];
+  let allState = [];
+  if (allState.length === 0 && actualState.length === 0) {
+    let state = {};
+    state.Estado = "i0";
+    state.Contenido = canonica;
+    allState.push(state);
+  }
+  console.log(allState);
 }
 
 separador(gramm);
@@ -465,14 +551,21 @@ first(grammLL1);
 for (i in prodPrimeros) {
   console.log(`Prim(${prodPrimeros[i]}) -> ${primeros[i]}`);
 }
-console.log("-----------------Siguientes--------------------")
+console.log("-----------------Siguientes--------------------");
 second(grammLL1);
 for (i in prodPrimeros) {
-  console.log(`Sig(${prodPrimeros[i]}) -> ${siguientes[i]}`)
+  console.log(`Sig(${prodPrimeros[i]}) -> ${siguientes[i]}`);
 }
-console.log("-----------------Conjunto Prediccion--------------------")
-cp(grammLL1)
+console.log("-----------------Conjunto Prediccion--------------------");
+cp(grammLL1);
 
-console.log("-----------------verificar LL1--------------------")
-verificarLL1()
+console.log("-----------------verificar LL1--------------------");
+verificarLL1();
 //console.log("aqui sig: ",listaSiguientes)
+
+console.log("-----------Gramatica extendida ------------");
+extendGramm(grammLL1);
+console.log(grammLR0);
+
+console.log("------------Estados --------------");
+parserLR0(grammLR0);
