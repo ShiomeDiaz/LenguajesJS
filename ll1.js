@@ -553,6 +553,7 @@ function parserLR0(gramlr0) {
       numState = numState + 1;
       let state = {
         Estado: numState,
+        EstadoAnterior: actualState.Estado,
         Transicion: transicion,
         Contenido: auxContent,
       };
