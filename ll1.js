@@ -522,16 +522,82 @@ function addNewProducction(gramm) {
 
 function parserLR0(gramlr0) {
   let canonica = gramlr0;
-  let actualState = [];
+  let actualState = {};
   let newState = [];
   let allState = [];
-  if (allState.length === 0 && actualState.length === 0) {
+  if (allState.length === 0 && Object.entries(actualState).length === 0) {
     let state = {};
-    state.Estado = "i0";
+    state.Estado = 0;
+    state.SigTransiciones = nextTransiciones(canonica);
     state.Contenido = canonica;
+    actualState = state;
     allState.push(state);
   }
-  console.log(allState);
+  console.log(actualState);
+  const fillStates = () => {
+    let auxState = {};
+    let auxContent = [];
+    let numState = actualState.Estado;
+    for (let i = 0; i < actualState.SigTransiciones.length; i++) {
+      let transicion = actualState.SigTransiciones[i];
+      for (let j = 0; j < actualState.Contenido.length; j++) {
+        let line = actualState.Contenido[j];
+        let [product, producci] = line.split("->");
+        let separete = producci.split(" ");
+        for (let k = 0; k < separete.length; k++) {
+          if (separete[k].includes(`.${transicion}`)) {
+            auxContent.push(moveDot(line, transicion));
+          }
+        }
+      }
+      numState = numState + 1;
+      let state = {
+        Estado: numState,
+        Transicion: transicion,
+        Contenido: auxContent,
+      };
+
+      auxContent = [];
+      console.log(state);
+    }
+  };
+  fillStates();
+}
+
+function moveDot(line, transicion) {
+  let auxline = line.replace(".", "");
+  auxline = auxline.replace(transicion, `${transicion}.`);
+  return auxline;
+}
+
+function nextTransiciones(estado) {
+  let transiciones = [];
+  for (let i = 0; i < estado.length; i++) {
+    let [produc, line] = estado[i].split("->");
+    let separete = line.split(" ");
+    for (let j = 0; j < separete.length; j++) {
+      if (separete[j].includes(".")) {
+        if (
+          !transiciones.includes(separete[j].replace(".", "")) ||
+          transiciones.length === 0
+        ) {
+          transiciones.push(separete[j].replace(".", ""));
+        }
+      }
+    }
+  }
+  return transiciones;
+}
+
+function searchProducctiosn(gramm, char) {
+  let producciones = [];
+  for (let i = 0; i < gramm.length; i++) {
+    let [product, produccion] = gramm[i].split("->");
+    if (char === product && noTerminales.includes(char)) {
+      producciones.push(gramm[i]);
+    }
+  }
+  return producciones;
 }
 
 separador(gramm);
@@ -564,7 +630,7 @@ verificarLL1();
 //console.log("aqui sig: ",listaSiguientes)
 
 console.log("-----------Gramatica extendida ------------");
-extendGramm(grammLL1);
+extendGramm(gramm);
 console.log(grammLR0);
 
 console.log("------------Estados --------------");
