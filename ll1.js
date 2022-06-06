@@ -585,7 +585,6 @@ function parserLR0(gramlr0) {
             let line = copyStates[i].Contenido[k];
             let [product, producci] = line.split("->");
             let separete = producci.split(" ");
-            console.log(separete);
             for (let x = 0; x < separete.length; x++) {
               let auxdot = "";
               if (separete[x].includes(`.${transicion}`)) {
