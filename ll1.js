@@ -534,10 +534,9 @@ function parserLR0(gramlr0) {
     allState.push(state);
   }
   const fillStates = () => {
-    let auxState = {};
     let auxContent = [];
     let nextTran = [];
-    let numState = actualState.Estado;
+    let numState = allState[allState.length - 1].Estado;
     for (let i = 0; i < actualState.SigTransiciones.length; i++) {
       let transicion = actualState.SigTransiciones[i];
       for (let j = 0; j < actualState.Contenido.length; j++) {
@@ -545,9 +544,14 @@ function parserLR0(gramlr0) {
         let [product, producci] = line.split("->");
         let separete = producci.split(" ");
         for (let k = 0; k < separete.length; k++) {
+          let auxdot = "";
           if (separete[k].includes(`.${transicion}`)) {
-            let auxdot = moveDot(line, transicion);
-            auxContent.push(moveDot(auxdot, " "));
+            auxdot = moveDot(line, transicion);
+            if (auxdot.includes(" ")) {
+              auxContent.push(moveDot(auxdot, " "));
+            } else {
+              auxContent.push(auxdot);
+            }
           }
         }
       }
@@ -565,27 +569,63 @@ function parserLR0(gramlr0) {
     }
   };
   fillStates();
-  console.log(allState);
   const nextStates = () => {
+    let nexContent = [];
     let copyStates = allState;
+    let nextTran = [];
+    let lastState = allState[allState.length - 1].Estado;
     for (let i = 0; i < copyStates.length; i++) {
       if (copyStates[i].Estado !== 0) {
-        let auxContent = copyStates[i].Contenido;
-        console.log(copyStates[i].Estado);
-        for (let j = 0; j < auxContent.length; j++) {
-          console.log(auxContent[j]);
+        for (let j = 0; j < copyStates[i].SigTransiciones.length; j++) {
+          let transicion =
+            copyStates[i].SigTransiciones[j].length === 0
+              ? []
+              : copyStates[i].SigTransiciones[j];
+          for (let k = 0; k < copyStates[i].Contenido.length; k++) {
+            let line = copyStates[i].Contenido[k];
+            let [product, producci] = line.split("->");
+            let separete = producci.split(" ");
+            console.log(separete);
+            for (let x = 0; x < separete.length; x++) {
+              let auxdot = "";
+              if (separete[x].includes(`.${transicion}`)) {
+                auxdot = moveDot(line, transicion);
+                let posDot = auxdot.indexOf(".");
+                if (auxdot[posDot + 1] === " ") {
+                  nexContent.push(moveDotafter(auxdot));
+                } else {
+                  nexContent.push(auxdot);
+                }
+              }
+            }
+          }
+          lastState = lastState + 1;
+          nextTran = nextTransiciones(nexContent);
+          let state = {
+            Estado: lastState,
+            EstadoAnterior: copyStates[i].Estado,
+            SigTransiciones: nextTran,
+            Transicion: transicion,
+            Contenido: nexContent,
+          };
+          allState.push(state);
+          nexContent = [];
         }
       }
     }
   };
-  console.log("imprimir estados en lista");
   nextStates();
+  console.log(allState);
+  return allState;
 }
 
 function moveDot(line, transicion) {
-  let auxline = line.replace(".", "");
-  auxline = auxline.replace(transicion, `${transicion}.`);
+  let auxline = line.replace(`.${transicion}`, `${transicion}.`);
   return auxline;
+}
+
+function moveDotafter(line) {
+  return line.replace(/\.\s/g, " .");
 }
 
 function nextTransiciones(estado) {
@@ -594,7 +634,10 @@ function nextTransiciones(estado) {
     let [produc, line] = estado[i].split("->");
     let separete = line.split(" ");
     for (let j = 0; j < separete.length; j++) {
-      if (separete[j].includes(".")) {
+      if (
+        separete[j].includes(".") &&
+        separete[j].indexOf(".") !== separete[j].length - 1
+      ) {
         if (
           !transiciones.includes(separete[j].replace(".", "")) ||
           transiciones.length === 0
@@ -616,6 +659,20 @@ function searchProducctiosn(gramm, char) {
     }
   }
   return producciones;
+}
+
+function tracing(states) {
+  let tracingAll = [];
+  for (let i = 0; i < states.length; i++) {
+    let tracingUnit = {};
+    if (states[i].Estado !== 0) {
+      tracingUnit.origen = states[i].EstadoAnterior;
+      tracingUnit.destino = states[i].Estado;
+      tracingUnit.transicion = states[i].Transicion;
+      tracingAll.push(tracingUnit);
+    }
+  }
+  return tracingAll;
 }
 
 separador(gramm);
@@ -652,4 +709,6 @@ extendGramm(gramm);
 console.log(grammLR0);
 
 console.log("------------Estados --------------");
-parserLR0(grammLR0);
+let estados = parserLR0(grammLR0);
+console.log("------------Transiciones---------");
+console.log(tracing(estados));
