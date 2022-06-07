@@ -536,6 +536,7 @@ function parserLR0(gramlr0) {
   const fillStates = () => {
     let auxContent = [];
     let nextTran = [];
+    let sAcepted = "";
     let numState = allState[allState.length - 1].Estado;
     for (let i = 0; i < actualState.SigTransiciones.length; i++) {
       let transicion = actualState.SigTransiciones[i];
@@ -548,10 +549,12 @@ function parserLR0(gramlr0) {
           if (separete[k].includes(`.${transicion}`)) {
             auxdot = moveDot(line, transicion);
             if (auxdot.includes(" ")) {
-              auxContent.push(moveDot(auxdot, " "));
+              auxdot = moveDot(auxdot, " ");
+              auxContent.push(auxdot);
             } else {
               auxContent.push(auxdot);
             }
+            sAcepted = isAceptedState(auxdot);
           }
         }
       }
@@ -559,12 +562,14 @@ function parserLR0(gramlr0) {
       nextTran = nextTransiciones(auxContent);
       let state = {
         Estado: numState,
+        EstadoAceptacion: sAcepted,
         EstadoAnterior: actualState.Estado,
         SigTransiciones: nextTran,
         Transicion: transicion,
         Contenido: auxContent,
       };
       allState.push(state);
+      sAcepted = "";
       auxContent = [];
     }
   };
@@ -573,6 +578,7 @@ function parserLR0(gramlr0) {
     let nexContent = [];
     let copyStates = allState;
     let nextTran = [];
+    let sAcepted = "";
     let lastState = allState[allState.length - 1].Estado;
     for (let i = 0; i < copyStates.length; i++) {
       if (copyStates[i].Estado !== 0) {
@@ -591,10 +597,12 @@ function parserLR0(gramlr0) {
                 auxdot = moveDot(line, transicion);
                 let posDot = auxdot.indexOf(".");
                 if (auxdot[posDot + 1] === " ") {
-                  nexContent.push(moveDotafter(auxdot));
+                  auxdot = moveDot(auxdot);
+                  nexContent.push(auxdot);
                 } else {
                   nexContent.push(auxdot);
                 }
+                sAcepted = isAceptedState(auxdot);
               }
             }
           }
@@ -602,6 +610,7 @@ function parserLR0(gramlr0) {
           nextTran = nextTransiciones(nexContent);
           let state = {
             Estado: lastState,
+            EstadoAceptacion: sAcepted,
             EstadoAnterior: copyStates[i].Estado,
             SigTransiciones: nextTran,
             Transicion: transicion,
@@ -609,6 +618,7 @@ function parserLR0(gramlr0) {
           };
           allState.push(state);
           nexContent = [];
+          sAcepted = "";
         }
       }
     }
@@ -625,6 +635,14 @@ function moveDot(line, transicion) {
 
 function moveDotafter(line) {
   return line.replace(/\.\s/g, " .");
+}
+
+function isAceptedState(line) {
+  if (line[line.length - 1] === ".") {
+    return "Accepted";
+  } else {
+    return undefined;
+  }
 }
 
 function nextTransiciones(estado) {
@@ -662,12 +680,19 @@ function searchProducctiosn(gramm, char) {
 
 function tracing(states) {
   let tracingAll = [];
+  let numAcceptedState = 0;
   for (let i = 0; i < states.length; i++) {
     let tracingUnit = {};
     if (states[i].Estado !== 0) {
       tracingUnit.origen = states[i].EstadoAnterior;
       tracingUnit.destino = states[i].Estado;
       tracingUnit.transicion = states[i].Transicion;
+      if (states[i].EstadoAceptacion === "Accepted") {
+        tracingUnit.EstadoAceptado = numAcceptedState;
+        numAcceptedState++;
+      } else {
+        tracingUnit.EstadoAceptado = undefined;
+      }
       tracingAll.push(tracingUnit);
     }
   }
