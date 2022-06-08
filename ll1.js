@@ -523,8 +523,8 @@ function addNewProducction(gramm) {
 function parserLR0(gramlr0) {
   let canonica = gramlr0;
   let actualState = {};
-  let newState = [];
   let allState = [];
+  // Agrega el primer estado
   if (allState.length === 0 && Object.entries(actualState).length === 0) {
     let state = {};
     state.Estado = 0;
@@ -533,6 +533,7 @@ function parserLR0(gramlr0) {
     actualState = state;
     allState.push(state);
   }
+  // Agrega del estado del 1 al 5
   const fillStates = () => {
     let auxContent = [];
     let nextTran = [];
@@ -684,11 +685,11 @@ function tracing(states) {
   for (let i = 0; i < states.length; i++) {
     let tracingUnit = {};
     if (states[i].Estado !== 0) {
-      tracingUnit.origen = states[i].EstadoAnterior;
-      tracingUnit.destino = states[i].Estado;
+      tracingUnit.origen = `I${states[i].EstadoAnterior}`;
+      tracingUnit.destino = `I${states[i].Estado}`;
       tracingUnit.transicion = states[i].Transicion;
       if (states[i].EstadoAceptacion === "Accepted") {
-        tracingUnit.EstadoAceptado = numAcceptedState;
+        tracingUnit.EstadoAceptado = `R${numAcceptedState}`;
         numAcceptedState++;
       } else {
         tracingUnit.EstadoAceptado = undefined;
