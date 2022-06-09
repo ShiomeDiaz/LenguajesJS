@@ -700,6 +700,23 @@ function tracing(states) {
   return tracingAll;
 }
 
+/*
+Se genera la tabla donde se van a ver las transiciones
+*/
+function generateTable() {
+  let noTerm = noTerminales;
+  let obj = { IrA: {}, Accion: {} };
+  for (let i = 0; i < noTerm.length; i++) {
+    if (!noTerm[i].includes("'")) {
+      obj.IrA[noTerm[i]] = noTerm[i];
+    }
+  }
+  for (let j = 0; j < terminales.length; j++) {
+    obj.Accion[terminales[j]] = terminales[j];
+  }
+  return obj;
+}
+
 separador(gramm);
 organizarGramatica(gramm);
 console.log("---------Terminales--------");
@@ -737,3 +754,7 @@ console.log("------------Estados --------------");
 let estados = parserLR0(grammLR0);
 console.log("------------Transiciones---------");
 console.log(tracing(estados));
+//Donde se imprime la tabla
+console.log("----------Ir a -----------");
+separador(gramm);
+console.table(objectNoTerm());
